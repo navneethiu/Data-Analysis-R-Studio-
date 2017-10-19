@@ -1,0 +1,101 @@
+---
+title: "Assignment 3"
+author: "Navneeth I U"
+date: "28 September 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, message=FALSE, warning=FALSE}
+sensor_data = read.csv("C://Users//Administrator//Documents//EDA//CSV//data_pca.csv")
+library(dplyr)
+library(corrplot)
+dim(sensor_data)
+```
+
+
+##### Principal Components 
+```{r, message=FALSE, warning=FALSE}
+sensor_pca = prcomp(sensor_data, scale. = T)
+```
+
+
+##### Scree diagram 
+```{r, message=FALSE, warning=FALSE}
+screeplot(sensor_pca, main = "", type = "l")
+title("Scree Plot", xlab = "Principal Components")
+```
+
+
+##### Output variables from prcomp function 
+```{r, message=FALSE, warning=FALSE}
+names(sensor_pca)
+```
+
+##### We use the name function to obtain output variables
+##### sdev - This variable gives the standard deviation of the PC's or square root of eigen values 
+##### rotation - This output variable gives the eigen vectors 
+##### center  - This variable gives the mean of the mean of the input variables 
+##### scale - This variable gives the standard deviation of the input variables 
+##### x - This variable gives the principle components 
+
+#### Eigen values
+```{R, message=FALSE, warning=FALSE}
+sensor_eigen_values = (sensor_pca$sdev*sensor_pca$sdev)
+sensor_eigen_values
+```
+
+
+##### Cumulative variance 
+```{r, message=FALSE, warning=FALSE}
+cum_var = cumsum(sensor_eigen_values/length(sensor_eigen_values)*100)
+cum_var
+a = matrix(c(0,50,80,80),2,2, byrow = FALSE)
+plot(cum_var, type = "l", col = "blue", main = "cumulative variance by PC's", 
+     ylab = "% Variance of PCs", xlab = "Principal Components") + lines(a, col = "red")
+```
+
+
+
+##### From the above plot we can identify that 2 PC's csn retain 80% of variance of the data
+
+
+
+##### A biplot uses points to represent the scores of the observations on the principal components, and it uses vectors to represent the coefficients of the variables on the principal components. A vector points in the direction which is most like the variable represented by the vector.
+```{r, message=FALSE, warning=FALSE}
+biplot(sensor_pca, choices = 1:2, scale = 1)
+```
+
+
+##### Airquality data 
+```{r, message=FALSE, warning=FALSE}
+head(airquality)
+```
+
+
+##### Identifying the percentage of null values 
+```{r, message=FALSE, warning=FALSE}
+percent_nulls = colSums(is.na(airquality))/NROW(airquality)*100
+percent_nulls
+```
+
+
+##### aggr plot using "VIM" package 
+```{r, message=FALSE, warning=FALSE}
+library(VIM)
+aggr(airquality, delimiter = NULL, plot = T)
+```
+
+
+
+##### Data imputation using "mice" package 
+##### The mice package in R, helps you imputing missing values with plausible data values. These plausible values are drawn from a distribution specifically designed for each missing datapoint.
+```{r, message=FALSE, warning=FALSE}
+library(mice)
+data_imp = mice(airquality, m=5)
+```
+
