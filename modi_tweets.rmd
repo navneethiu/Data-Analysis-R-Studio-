@@ -1,0 +1,128 @@
+---
+title: "Modi_Tweets_Analysis"
+author: "NAVNEETH I U"
+date: "28 August 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Modi Tweets
+```{r, message=FALSE, warning=FALSE}
+modi = read.csv("C://Users//Administrator//Documents//EDA//CSV//narendramodi_tweets.csv")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+kable(modi[1:5,])
+dim(modi)
+```
+
+## Source summary  
+```{r}
+source_summary = modi %>% group_by(source) %>% summarise(count=n())
+kable(source_summary)
+ggplot(source_summary, aes(x=source, y=count)) + geom_bar(stat = 'identity') 
+```
+
+## Source summary  
+```{r}
+source_summ= modi %>% group_by(source) %>% summarise(count=n(),Avg_retweets = mean(retweets_count,na.rm=TRUE))
+kable(source_summ)
+ggplot(source_summ, aes(x=source, y=count, fill=-Avg_retweets)) + geom_bar(stat = 'identity') + coord_flip()
+```
+
+## Source summary  
+```{r}
+source_summ= modi %>% group_by(source) %>% summarise(count=n(),Avg_retweets = mean(retweets_count,na.rm=TRUE),Avg_likes = mean(favorite_count,na.r=TRUE))
+kable(source_summ)
+ggplot(source_summ, aes(x=source, y=count, fill=-Avg_likes )) + geom_bar(stat = 'identity') + coord_flip()
+```
+
+
+```{r}
+modi$date = as.Date(modi$created_at,format = '%Y-%m-%d %H:%M:%S')
+modi$year=format(modi$date,'%Y')
+modi$month=format(modi$date,'%m')
+modi$day=format(modi$date,'%d')
+modi$weekday=format(modi$date,'%A')
+modi$year_month=format(modi$date, '%Y-%m')
+modi$year_month_day=format(modi$date, '%Y-%m-%d')
+View(modi)
+head(select(modi,date,month, day, weekday))
+```  
+
+## No of tweets per month 
+```{r}
+Twt_month = modi %>% group_by(month) %>% summarise(tweets_count=n())
+ggplot(Twt_month, aes(x=month,y=tweets_count)) + geom_bar(stat = 'identity')
+```
+
+## No of tweets per month 
+```{r, message=FALSE, warning=FALSE}
+Twt_month = modi %>% group_by(year_month) %>% summarise(tweets_count=n())
+ggplot(Twt_month, aes(x=year_month,y=tweets_count)) + geom_bar(stat = 'identity')
+```
+
+## No of tweets per month 
+```{r, message=FALSE, warning=FALSE}
+Twt_month = modi %>% group_by(year_month) %>% summarise(tweets_count=n())
+ggplot(Twt_month, aes(x=year_month,y=tweets_count,group=1)) + geom_bar(stat = 'identity') + geom_line(color='red') 
+```
+
+## No of hashtags used across days 
+```{r, message=FALSE, warning=FALSE}
+hashtags_day = modi %>% group_by(year_month_day) %>% summarise(hashtags_count=sum(hashtags_count))
+ggplot(hashtags_day, aes(x=year_month_day,y=hashtags_count,group=1)) + geom_bar(stat='identity') + geom_line(color='red') 
+```
+
+## Scatter plot
+```{r, message=FALSE, warning=FALSE}
+ggplot(modi,aes(x=favorite_count,y=retweets_count)) + geom_point() 
+```
+
+# Scattar plot with line 
+```{r}
+ggplot(modi,aes(x=favorite_count,y=retweets_count)) + geom_point()+ geom_smooth()
+```
+
+# Scattar plot with third colour attribute 
+```{r}
+ggplot(modi,aes(x=favorite_count,y=retweets_count,color=source)) + geom_point() +geom_smooth()
+```
+
+## Plot graph for tweets per month across various sources 
+```{r}
+
+modi$date = as.Date(modi$created_at,format ='%d-%m-%Y %H:%M')
+modi$year_month=format(modi$date, '%Y-%m')
+View(modi)
+Monthly_Tweets = modi %>% group_by(source,year_month) %>% summarise(tweets=n()) %>% arrange(-tweets)
+ggplot(Monthly_Tweets, aes(x=year_month,y=tweets)) + geom_bar(stat='identity') + facet_wrap(~source)
+
+```
+
+```{r}
+text = tolower(modi$text)
+text_clean = gsub(x=text, pattern = '[^[:alpha:] ]' , replacement = '')
+words_list = strsplit(text_clean, ' ')
+
+length(words_list)
+words_list[1]
+
+words = unlist(words_list)
+length(words)
+words[10:20]
+
+words_freq = table(words)
+df_words_freq = as.data.frame(words_freq)
+df_words_freq = df_words_freq %>% arrange(-Freq)
+View(df_words_freq)
+
+library(wordcloud)
+
+words_subset = head(df_words_freq, 100)
+wordcloud(words_subset$words, words_subset$Freq)
+
+```
