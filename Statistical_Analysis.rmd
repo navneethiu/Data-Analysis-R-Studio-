@@ -1,0 +1,125 @@
+---
+title: "Statistics"
+author: "Navneeth I U"
+date: "18 November 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+freq = read.csv("C://Users//Administrator//Documents//Term1//statistics//freq_dist_data.csv")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+kable(freq[1:5,])
+summary(freq)
+```
+
+
+### Ferquency table 
+```{r}
+### Create bins range
+bins = seq(0, 21, by =3)
+
+### Replace each value the bins 
+intervals = cut(freq$Distance, bins)
+
+### Table function frequency for each bins 
+transform(table(intervals))
+
+hist(freq$Distance, breaks = bins, main = "Histogram for Distance travelled by Employees", col = "gold" ,xlab = "Distance Travelled", ylab = "Number of employees")
+```
+
+
+#### 
+```{r}
+cust = read.csv("C://Users//Administrator//Documents//Term1//statistics//CUSTOMER_DATA.csv")
+range(cust$USER_INCOME)
+
+### The user-income 
+cust$USER_INCOME1 = ifelse(cust$USER_INCOME>50000, 50000, cust$USER_INCOME)
+range(cust$USER_INCOME1)
+
+
+bins1 = seq(0, 50000, by = 10000)
+intervals1 = cut(cust$USER_INCOME1, bins1)
+transform(table(intervals1))
+
+
+### Price column 
+range(cust$PRICE)
+boxplot(cust$PRICE)
+
+bins2 = seq(0, 40000, by = 10000)
+intervals2 = cut(cust$PRICE, bins2)
+transform(table(intervals2))
+```
+
+
+```{r}
+cust2 = subset(cust, cust$USER_JOB_DET == "STUDENT")
+mean(cust2$USER_INCOME)
+
+m = cust %>% filter(cust$GENDER =="M")
+m$GENDER
+mean(m$USER_INCOME)
+```
+
+
+```{r}
+cust1 = subset(cust, cust$USER_INCOME < 100000)
+c = subset(cust1, cust1$USER_INCOME>0)
+mean(c$USER_INCOME)
+
+
+bin = seq(0, 50000, by = 10000)
+interval = cut(c$USER_INCOME, bin)
+transform(table(interval))
+
+hist(c$USER_INCOME, breaks = bin, main = "Histogram of User_income", col = "green", xlab = "User Income ", ylab = "Number of users")
+```
+
+
+### Conditional Probability of samsung AC being purchased when AC is purchased
+```{r}
+count_ac = sum(cust$PRODUCT =="AC" & cust$PURCHASE == 1)
+
+count_ac_samsung = sum(cust$PRODUCT =="AC" & cust$BRANDCODE == "SAMSUNG" & cust$PURCHASE ==1 )
+
+Prob_ac_samsung = count_ac_samsung/count_ac * 100
+Prob_ac_samsung
+```
+
+
+### Conditional Probability - What is the probability that something is purchased given that its price is more tha 15k INR 
+```{r}
+sum(cust$PURCHASE ==1 & cust$PRICE > 15000)/sum(cust$PRICE > 15000) * 100 
+
+```
+
+```{r}
+sum(cust$PURCHASE ==1 & cust$PRICE > 15000 & cust$NO_ITEMS >=1)/ sum(cust$NO_ITEMS >=1) * 100
+
+```
+
+### Binomial Distribution 
+```{r}
+n=20
+p=0.6
+q=1-p
+
+
+### dbinom is used to get absolute probability
+dbinom(4,20,0.6)
+
+### pbinom is used to get cumulative probability 
+pbinom(4,20,0.6)
+pbinom(18,20,0.6) - pbinom(15,20,0.6)
+
+### qbinom is used to get the point at which probability is occuring 
+qbinom(0.58,20,0.6)
+```
+
