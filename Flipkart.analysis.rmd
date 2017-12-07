@@ -1,0 +1,52 @@
+---
+title: "Flipkart Tweets Analysis"
+author: "NAVNEETH I U"
+date: "22 August 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+tweets_flipkart = read.csv("C://Users//Administrator//Downloads//tweets_flipkart.csv")
+flip=tweets_flipkart
+library(knitr)
+library(dplyr)
+kable(flip[1:5,])
+```
+
+##Identify types of columns(location,texts,groups etc)??
+```{r, message=FALSE, warning=FALSE}
+str(flip)
+```
+
+##Identify top ten users based on number of tweets
+```{r, message=FALSE, warning=FALSE}
+Top_users=flip %>% group_by(user) %>% summarise(Total_tweets=n()) %>% arrange(-Total_tweets)
+kable(Top_users[1:10,])
+```
+
+##What is the percentage of tweets from each device(use source column to know about device)?
+```{r, message=FALSE, warning=FALSE}
+Total_tweets=length(flip$text)
+Tweet_percent = flip %>% group_by(source) %>% summarise(percentage=((n()/Total_tweets*100))) %>% arrange(-percentage)
+kable(Tweet_percent)
+```
+
+##Which date has maximum number of tweets
+```{r, message=FALSE, warning=FALSE}
+Max_tweet_date = flip %>% group_by(created_at) %>% summarise(Tweets=n()) %>% arrange(-Tweets)
+kable(Max_tweet_date[1,])
+```
+
+##Compute number of character in each tweets. Create a new column for the same. How many tweets are having less than 50 characters?
+```{r, message=FALSE, warning=FALSE}
+flip$text=as.character(flip$text)
+characters = nchar(flip$text)
+flip = flip %>% mutate(characters)
+Tweets_less_than_50 = flip %>% filter(characters<50) %>% summarise(No_Tweets_less_50=n())
+print(Tweets_less_than_50)
+```
+
